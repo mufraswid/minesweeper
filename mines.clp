@@ -26,7 +26,7 @@
         (no 0)
         (absis 0)
         (ordinat 0)
-        (value 6)
+        (value 0)
         (adjacent 1 8 9 10 11)
         (nflags 1)
     )

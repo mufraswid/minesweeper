@@ -3,7 +3,7 @@
 # from PyQt5.QtWidgets import QLabel, QMainWindow, QApplication, QPushButton, QListWidget, QListWidgetItem, QLineEdit
 # from PyQt5.QtGui import QPixmap, QIcon
 # from .productwindow import prod_window
-from clips import Environment, Symbol
+from clips import Environment, Symbol, Facts
 from random import randint
 
 ### CLASSES ###
@@ -150,6 +150,7 @@ def getFlaggedCoord(str):
 
 def isFactOpened(str):
     # return true if fact is opened
+    return str[1:7] == 'opened'
 
 def getOpenedCoord(str):
     # get opened coord
@@ -201,12 +202,12 @@ def main():
                 # Retract because the fact is outdated
                 env.build(f'retract {strfact}')
             elif isFactFlagged(strfact):
-                # Lanjut
+                # Ensure the flag has never been checked before
+                clips_bomb_count += 1
             elif isFactOpened(strfact):
-        
-        # Count every possibility of adjacent squares
-        # Push fact to clips using assert
-        # env.run()
+            # Count every possibility of adjacent squares      
+            # Push fact to clips using assert
+            # env.run()
 
 def init(size):
     ''' 

@@ -8,3 +8,6 @@ environment.load('mines.clp')
 # reset and execute the activations in the agenda
 environment.reset()
 environment.run()
+
+for fact in environment.facts():
+	print(fact)
