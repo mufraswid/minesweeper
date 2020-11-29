@@ -4,151 +4,10 @@
 # from PyQt5.QtGui import QPixmap, QIcon
 # from .productwindow import prod_window
 
-from clips import Environment, Symbol, Facts
+from clips import Environment, Symbol
 from random import randint
 from Tile import Tile
-
-### CLASSES ###
-# Grid to model the field
-class Grid:
-    def __init__(self, size):
-        '''
-        Konstruktor
-        '''
-        self.size = size
-        self.grid = [ [Tile(n + self.size * i) for n in range(size)] for i in range(size)]
-
-    def generateRandomBombs(self, count):
-        '''
-        Generate random bombs on the field
-        '''
-        for n in range(count):
-            while (True):
-                x = randint(0, self.size-1)
-                y = randint(0, self.size-1)
-                if x > 0 and y > 0 and self.grid[x][y].bomb == False:
-                    self.grid[x][y].bomb = True
-                    break
-
-    def inputBombs(self, count):
-        '''
-        Take input to set the bombs in the field
-        '''
-        for n in range(count):
-            while(True):
-                x, y =  map(int, input('Koordinat bomb %d: '%(n+1)).split(','))
-                if (x < 0) or (x >= self.size) or (y < 0) or (y >= self.size) or ((x == 0) and (y == 0)):
-                    print("Out of bounds!")
-                else:
-                    if self.grid[x][y].bomb == False and not((x == 0) and (y == 0)):
-                        self.grid[x][y].bomb = True
-                        break
-                    else:
-                        print("Koordinat sudah terisi bomb!")
-
-    def inbounds(self, x, y):
-        '''
-        Check if x and y is within the field
-        '''
-        return (0 <= x and x < self.size and 0 <= y and y < self.size) 
-
-    def getLabel(self, x, y):
-        '''
-        Get value of a Tile from its surroundings
-        '''
-        s = 0
-        for (dx, dy) in [(0,1), (0,-1), (1,0), (-1,0), (1,1), (-1,-1), (1,-1), (-1,1)]:
-            if self.inbounds(x+dx, y+dy) and self.grid[x+dx][y+dy].isBomb():
-                s += 1
-        return s
-    
-    def printBombs(self):
-        '''
-        Print bombs in the field
-        '''
-        for i in range(self.size):
-            print("=== ", end='')
-        print()
-        for i in range(self.size):
-            for j in range(self.size):
-                if(self.grid[j][i].isBomb()):
-                    print(" B  ", end = '')
-                else:
-                    print("[ ] ", end = '')
-            print()
-        for i in range(self.size):
-            print("=== ", end='')
-        print()
-
-    def printField(self):
-        '''
-        Print the board with all tiles opened
-        '''
-        for i in range(self.size):
-            print("=== ", end='')
-        print()
-        for y in range(self.size):
-            for x in range(self.size):
-                currTile = self.grid[x][y]
-                if (currTile.isBomb()):
-                    print(" B  ", end='')
-                else:
-                    print("[" + str(self.getLabel(x,y)) + "] ", end='')
-            print()
-        for i in range(self.size):
-            print("=== ", end='')
-        print()
-
-    def printBoard(self):
-        '''
-        Print the board as it is
-        '''
-        for i in range(self.size):
-            print("=== ", end='')
-        print()
-        for y in range(self.size):
-            for x in range(self.size):
-                currTile = self.grid[x][y]
-                if (currTile.isOpened()):
-                    if (currTile.isBomb()):
-                        print(" B  ", end='')
-                    else:
-                        print(" " + self.getLabel(x,y) + "  ", end='')
-                elif (currTile.isFlagged()):
-                    print("[F] ", end = '')
-                else:
-                    print("[ ] ", end = '')
-            print()
-        for i in range(self.size):
-            print("=== ", end='')
-        print()
-
-    
-    def openAdjacent(self, id):
-        '''
-        Open adjacent safe tiles, recursively
-        '''
-        surr = self.getSurroundings(id)
-        for tile in surr:
-            x, y = tile % self.size, tile // self.size
-            if self.getLabel(x,y) == 0:
-                self.grid[x][y].open()
-                self.openAdjacent(tile)          
-    
-    def getSurroundings(self, id):
-        '''
-        Get surrounding tiles' ids
-        '''
-        surr = []
-        x = id % self.size 
-        y = id / self.size 
-        for (dx, dy) in [(0,1), (0,-1), (1,0), (-1,0), (1,1), (-1,-1), (1,-1), (-1,1)]:
-            if self.inbounds(x+dx, y+dy):
-                nx = x + dx
-                ny = y + dy
-                surr.append(nx + ny * self.size)
-        return surr
-
+from grid import Grid
 
 # Fact utils
 def isFactSquare(str):
@@ -266,9 +125,16 @@ def main():
                 env.build(f'retract {strfact}')
             elif isFactFlagged(strfact):
                 # Ensure the flag has never been checked before
-                clips_bomb_count += 1
+                x, y = getFlaggedCoord(strfact, grid)
+                if not grid.grid[x][y].isFlagged():
+                    grid.grid[x][y].setFlag()
+                    clips_bomb_count += 1
             elif isFactOpened(strfact):
-                pass
+                x, y = getOpenedCoord(strfact, grid)
+                if not grid.grid[x][y].isOpened():
+                    grid.openTile(x, y)
+            break
+        break
             # Count every possibility of adjacent squares      
             # Push fact to clips using assert
             # env.run()
