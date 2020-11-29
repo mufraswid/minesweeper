@@ -6,50 +6,9 @@
 
 from clips import Environment, Symbol, Facts
 from random import randint
+from Tile import Tile
 
 ### CLASSES ###
-# Tile to model each tile in the field
-class Tile:
-    def __init__(self, id):
-        '''
-        Constructor
-        '''
-        self.id = id                # id of the tile
-        self.bomb = False           # is a bomb or not
-        self.flagged = False        # is flagged or not
-        self.label = None           # Tile's value
-        self.opened = False         # Status if it is opened or not
-    
-    def isBomb(self):
-        '''
-        Returns bomb status
-        '''
-        return self.bomb
-
-    def isFlagged(self):
-        ''' 
-        Return flagged status
-        '''
-        return self.flagged
-    
-    def setFlag(self):
-        ''' 
-        Set flag on the tile
-        '''
-        self.flagged = True
-    
-    def open(self):
-        '''
-        Open the tile
-        '''
-        self.opened = True
-    
-    def getLabel(self):
-        '''
-        Get value
-        '''
-        return self.label
-
 # Grid to model the field
 class Grid:
     def __init__(self, size):
@@ -99,7 +58,7 @@ class Grid:
         '''
         s = 0
         for (dx, dy) in [(0,1), (0,-1), (1,0), (-1,0), (1,1), (-1,-1), (1,-1), (-1,1)]:
-            if inbounds(x+dx, y+dy) and grid[x+dx][y+dy].isBomb():
+            if self.inbounds(x+dx, y+dy) and self.grid[x+dx][y+dy].isBomb():
                 s += 1
         return s
     
@@ -108,12 +67,62 @@ class Grid:
         Print bombs in the field
         '''
         for i in range(self.size):
+            print("=== ", end='')
+        print()
+        for i in range(self.size):
             for j in range(self.size):
                 if(self.grid[j][i].isBomb()):
                     print(" B  ", end = '')
                 else:
                     print("[ ] ", end = '')
             print()
+        for i in range(self.size):
+            print("=== ", end='')
+        print()
+
+    def printField(self):
+        '''
+        Print the board with all tiles opened
+        '''
+        for i in range(self.size):
+            print("=== ", end='')
+        print()
+        for y in range(self.size):
+            for x in range(self.size):
+                currTile = self.grid[x][y]
+                if (currTile.isBomb()):
+                    print(" B  ", end='')
+                else:
+                    print("[" + str(self.getLabel(x,y)) + "] ", end='')
+            print()
+        for i in range(self.size):
+            print("=== ", end='')
+        print()
+
+    def printBoard(self):
+        '''
+        Print the board as it is
+        '''
+        for i in range(self.size):
+            print("=== ", end='')
+        print()
+        for y in range(self.size):
+            for x in range(self.size):
+                currTile = self.grid[x][y]
+                if (currTile.isOpened()):
+                    if (currTile.isBomb()):
+                        print(" B  ", end='')
+                    else:
+                        print(" " + self.getLabel(x,y) + "  ", end='')
+                elif (currTile.isFlagged()):
+                    print("[F] ", end = '')
+                else:
+                    print("[ ] ", end = '')
+            print()
+        for i in range(self.size):
+            print("=== ", end='')
+        print()
+
     
     def openAdjacent(self, id):
         '''
@@ -121,8 +130,8 @@ class Grid:
         '''
         surr = self.getSurroundings(id)
         for tile in surr:
-            x, y = tile % 8, tile // 8
-            if self.grid[x][y].getLabel() == 0:
+            x, y = tile % self.size, tile // self.size
+            if self.getLabel(x,y) == 0:
                 self.grid[x][y].open()
                 self.openAdjacent(tile)          
     
@@ -131,8 +140,10 @@ class Grid:
         Get surrounding tiles' ids
         '''
         surr = []
+        x = id % self.size 
+        y = id / self.size 
         for (dx, dy) in [(0,1), (0,-1), (1,0), (-1,0), (1,1), (-1,-1), (1,-1), (-1,1)]:
-            if inbounds(x+dx, y+dy):
+            if self.inbounds(x+dx, y+dy):
                 nx = x + dx
                 ny = y + dy
                 surr.append(nx + ny * self.size)
@@ -172,7 +183,7 @@ def getFlaggedCoord(str, grid):
     # raw is (x)
     else:
         id = int(raw[1])
-    return (id % grid.size, id / grid.size)
+    return (id % grid.size, id // grid.size)
 
 def isFactOpened(str):
     # return true if fact is opened
@@ -204,7 +215,7 @@ def getOpenedCoord(str, grid):
     # raw is (x)
     else:
         id = int(raw[2])
-    return (id % grid.size, id / grid.siz   e)
+    return (id % grid.size, id // grid.size)
 
 def main():
     '''
@@ -237,6 +248,8 @@ def main():
             grid.inputBombs(bombCount)
             break
     grid.printBombs()
+    grid.printField()
+    grid.printBoard()
 
     ### SOLVER PART ###
     # init clps environment, load mines.clp
