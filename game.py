@@ -138,6 +138,23 @@ class Grid:
         return surr
 
 
+# Fact utils
+def isFactSquare(str):
+    return str[1:7] == 'square'
+
+def isFactFlagged(str):
+    return str[1:8] == 'flagged'
+
+def getFlaggedCoord(str):
+    # get flagged coord
+
+def isFactOpened(str):
+    # return true if fact is opened
+
+def getOpenedCoord(str):
+    # get opened coord
+
+
 def main():
     '''
     Main function
@@ -171,7 +188,25 @@ def main():
     grid.printBombs()
 
     ### SOLVER PART ###
-
+    # init clps environment, load mines.clp
+    env = Environment()
+    env.load('mines.clp')
+    
+    clips_bomb_count = 0
+    
+    while clips_bomb_count < bombCount:
+        for fact in env.facts():
+            strfact = str(fact)
+            if isFactSquare(strfact):
+                # Retract because the fact is outdated
+                env.build(f'retract {strfact}')
+            elif isFactFlagged(strfact):
+                # Lanjut
+            elif isFactOpened(strfact):
+        
+        # Count every possibility of adjacent squares
+        # Push fact to clips using assert
+        # env.run()
 
 def init(size):
     ''' 

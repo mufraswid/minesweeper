@@ -31,40 +31,6 @@
     )
 )
 
-
-; Generate kotak adjacent
-(deffunction generateAllAdjacent (?size ?no ?absis ?ordinat $?curadj) 
-    ; Generate adjacent kanan dan kiri
-	(bind $?left (create$  (- (- ?no ?size) 1) (- ?no 1) (- (+ ?no ?size) 1)))
-	(bind $?right (create$ (+ (- ?no ?size) 1) (+ ?no 1) (+ (+ ?no ?size) 1)))
-    ; Generate adjacent atas
-	(bind $?above (create$ (- (- ?no ?size) 1) (- ?no ?size) (+ (- ?no ?size) 1)))
-    ; Generate adjacent bawah
-	(bind $?below (create$ (- (+ ?no ?size) 1) (+ ?no ?size) (+ (+ ?no ?size) 1)))
-    (bind $?adjacent (explode$ ""))
-	(if (eq (+ ?ordinat 1) ?size) then 
-    	(insert$ $?adjacent 1 $?above)
-    	(insert$ $?adjacent 1 $?left)
-    	(insert$ $?adjacent 1 $?right)
-    )
-	(if (eq ?ordinat 0) then 
-    	(insert$ $?adjacent 1 $?below)
-    	(insert$ $?adjacent 1 $?left)
-    	(insert$ $?adjacent 1 $?right)
-    )
-	(if (eq (+ ?absis 1) ?size) then 
-        (insert$ $?adjacent 1 $?below)
-    	(insert$ $?adjacent 1 $?left)
-    	(insert$ $?adjacent 1 $?above)
-    )
-	(if (eq ?absis 0) then 
-        (insert$ $?adjacent 1 $?below)
-    	(insert$ $?adjacent 1 $?above)
-    	(insert$ $?adjacent 1 $?right)
-    )
-	(return $?adjacent)
-)
-
 ; Apabila banyak flag + unknown adjacent = value, maka flag kotak sisanya
 (defrule flagAllAdjacent
 	?cursquare <- (square
