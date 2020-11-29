@@ -256,6 +256,7 @@ def main():
     env = Environment()
     env.load('mines.clp')
     
+    bombs = []
     clips_bomb_count = 0
     
     while clips_bomb_count < bombCount:
@@ -266,9 +267,12 @@ def main():
                 env.build(f'retract {strfact}')
             elif isFactFlagged(strfact):
                 # Ensure the flag has never been checked before
-                clips_bomb_count += 1
+                flagid = getFlaggedCoord(strfact)
+                exists = flagid in bombs
+                if not exists:
+                    bombs.append(flagid)
+                    clips_bomb_count += 1
             elif isFactOpened(strfact):
-
                 pass
             # Count every possibility of adjacent squares      
             # Push fact to clips using assert
