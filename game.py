@@ -3,6 +3,7 @@
 # from PyQt5.QtWidgets import QLabel, QMainWindow, QApplication, QPushButton, QListWidget, QListWidgetItem, QLineEdit
 # from PyQt5.QtGui import QPixmap, QIcon
 # from .productwindow import prod_window
+
 from clips import Environment, Symbol, Facts
 from random import randint
 
@@ -108,7 +109,7 @@ class Grid:
         '''
         for i in range(self.size):
             for j in range(self.size):
-                if(self.grid[i][j].isBomb()):
+                if(self.grid[j][i].isBomb()):
                     print(" B  ", end = '')
                 else:
                     print("[ ] ", end = '')
@@ -116,13 +117,13 @@ class Grid:
     
     def openAdjacent(self, id):
         '''
-        Open adjacent safe tiles
+        Open adjacent safe tiles, recursively
         '''
         surr = self.getSurroundings(id)
         for tile in surr:
             x, y = tile % 8, tile // 8
             if self.grid[x][y].getLabel() == 0:
-                self.grif[x][y].open()
+                self.grid[x][y].open()
                 self.openAdjacent(tile)          
     
     def getSurroundings(self, id):
@@ -146,15 +147,64 @@ def isFactFlagged(str):
     return str[1:8] == 'flagged'
 
 def getFlaggedCoord(str):
-    # get flagged coord
+    '''
+    get flagged coord of surrounding, coord is id
+    '''
+    raw = str[10:]
+    id = 0
+    # raw is (xx)
+    if (raw.length == 4):
+        id = int(raw[1:2])
+    # raw is (x)
+    else:
+        id = int(raw[1])
+    return id
+
+def getFlaggedCoord(str, grid):
+    '''
+    get flagged coord of surrounding, coord is (x,y)
+    '''
+    raw = str[10:]
+    id = 0
+    # raw is (xx)
+    if (raw.length > 2):
+        id = int(raw[1:2])
+    # raw is (x)
+    else:
+        id = int(raw[1])
+    return (id % grid.size, id / grid.size)
 
 def isFactOpened(str):
     # return true if fact is opened
     return str[1:7] == 'opened'
 
 def getOpenedCoord(str):
-    # get opened coord
+    '''
+    get opened coord of surrounding, coord is id
+    '''
+    raw = str[9:]
+    id = 0
+    # raw is (xx)
+    if (raw.length > 2):
+        id = int(raw[1:2])
+    # raw is (x)
+    else:
+        id = int(raw[2])
+    return id
 
+def getOpenedCoord(str, grid):
+    '''
+    get opened coord of surrounding, coord is (x,y)
+    '''
+    raw = str[9:]
+    id = 0
+    # raw is (xx)
+    if (raw.length > 2):
+        id = int(raw[1:2])
+    # raw is (x)
+    else:
+        id = int(raw[2])
+    return (id % grid.size, id / grid.siz   e)
 
 def main():
     '''
@@ -205,6 +255,7 @@ def main():
                 # Ensure the flag has never been checked before
                 clips_bomb_count += 1
             elif isFactOpened(strfact):
+                pass
             # Count every possibility of adjacent squares      
             # Push fact to clips using assert
             # env.run()
