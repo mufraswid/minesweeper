@@ -2,6 +2,9 @@ from Tile import Tile
 from random import randint
 
 # Grid to model the field
+from Tile import Tile
+from random import randint
+
 class Grid:
     def __init__(self, size):
         '''
