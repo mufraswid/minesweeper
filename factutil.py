@@ -12,7 +12,7 @@ def getFlaggedCoord(str):
     raw = str[10:]
     id = 0
     # raw is (xx)
-    if (raw.length == 4):
+    if (len(raw) == 4):
         id = int(raw[1:2])
     # raw is (x)
     else:
@@ -26,7 +26,7 @@ def getFlaggedCoord(str, size):
     raw = str[10:]
     id = 0
     # raw is (xx)
-    if (raw.length > 2):
+    if (len(raw) > 2):
         id = int(raw[1:2])
     # raw is (x)
     else:
@@ -44,7 +44,7 @@ def getOpenedCoord(str):
     raw = str[9:]
     id = 0
     # raw is (xx)
-    if (raw.length > 2):
+    if (len(raw) > 2):
         id = int(raw[1:2])
     # raw is (x)
     else:
@@ -58,9 +58,18 @@ def getOpenedCoord(str, size):
     raw = str[9:]
     id = 0
     # raw is (xx)
-    if (raw.length > 2):
+    if (len(raw) > 2):
         id = int(raw[1:2])
     # raw is (x)
     else:
         id = int(raw[2])
     return (id % size, id // size)
+
+def main():
+    string = "(opened (no 0))"
+    x, y = getOpenedCoord(string, 4)
+    print(x)
+    print(y)
+
+if __name__ == "__main__":
+    main()
