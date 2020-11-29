@@ -1,6 +1,7 @@
 ; Keterangan status kotak
 (deftemplate opened (slot no))
 (deftemplate flagged (slot no))
+(deftemplate prob (slot p) (slot id))
 
 ; Struct kotak minesweeper
 (deftemplate square 
@@ -59,3 +60,10 @@
     (retract $cursquare)
 )
 
+; ambil kotak dengan probabilitas terendah
+(defrule getLowestProb
+    ?todo1 <- (prob (p ?p1) (id ?id1))
+    ?todo2 <- (prob (p ?p2 &: (< ?p1 ?p2)) (id ?id2))
+=>
+    (retract ?todo2)
+)
