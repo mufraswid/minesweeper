@@ -5,7 +5,6 @@
 # from .productwindow import prod_window
 
 from clips import Environment, Symbol
-from random import randint
 from Tile import Tile
 from grid import Grid
 from factutil import *
