@@ -171,7 +171,7 @@ def getFlaggedCoord(str):
         id = int(raw[1])
     return id
 
-def getFlaggedCoord(str, grid):
+def getFlaggedCoord(str, size):
     '''
     get flagged coord of surrounding, coord is (x,y)
     '''
@@ -183,7 +183,7 @@ def getFlaggedCoord(str, grid):
     # raw is (x)
     else:
         id = int(raw[1])
-    return (id % grid.size, id // grid.size)
+    return (id % size, id // size)
 
 def isFactOpened(str):
     # return true if fact is opened
@@ -203,7 +203,7 @@ def getOpenedCoord(str):
         id = int(raw[2])
     return id
 
-def getOpenedCoord(str, grid):
+def getOpenedCoord(str, size):
     '''
     get opened coord of surrounding, coord is (x,y)
     '''
@@ -215,7 +215,7 @@ def getOpenedCoord(str, grid):
     # raw is (x)
     else:
         id = int(raw[2])
-    return (id % grid.size, id // grid.size)
+    return (id % size, id // size)
 
 def main():
     '''
@@ -268,6 +268,7 @@ def main():
                 # Ensure the flag has never been checked before
                 clips_bomb_count += 1
             elif isFactOpened(strfact):
+
                 pass
             # Count every possibility of adjacent squares      
             # Push fact to clips using assert
