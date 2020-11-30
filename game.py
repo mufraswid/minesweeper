@@ -39,9 +39,9 @@ def main():
         elif (case == "n"):
             grid.inputBombs(bombCount)
             break
-    grid.printBombs()
-    grid.printField()
-    grid.printBoard()
+    # grid.printBombs()
+    # grid.printField()
+    # grid.printBoard()
 
     ### SOLVER PART ###
     # init clps environment, load mines.clp
@@ -53,37 +53,42 @@ def main():
     # Init first move by opening tile(0,0)
     adj = set([])
     flag = set([])
+    fact_arr = []
     grid.openTile(0,0)
     sqid = 0
     sqval = grid.getLabel(0,0)
     sqadj = "".join(adj)
     sqflag = len(flag)
     sqstring = "(square (no " + str(sqid) + ") (value " + str(sqval) + ") (adjacent " + str(sqadj) + ") (nflags " + str(sqflag) + "))"
-    f = env.assert_string(sqstring)
-    
-    
+    fact_arr.append(sqstring)
+    print("Start!")
+
     while clips_bomb_count < bombCount:
-        print("Start!")
-        for fact in env.facts():
-            print(fact)
+        for fact in fact_arr:
             strfact = str(fact)
-            if isFactSquare(strfact):
-                # Retract because the fact is outdated
-                fact.retract()
-            elif isFactFlagged(strfact):
+            print(f'read: {strfact}')
+            if isFactFlagged(strfact):
                 # Ensure the flag has never been checked before
-                x, y = getFlaggedCoord(strfact, grid.size)
+                id = getFlaggedCoord(strfact)
+                x = id % grid.size
+                y = id // grid.size 
                 if not grid.grid[x][y].isFlagged():
                     grid.grid[x][y].setFlag()
                     clips_bomb_count += 1
             elif isFactOpened(strfact):
-                x, y = getOpenedCoord(strfact, grid.size)
+                id = getOpenedCoord(strfact)
+                x = id % grid.size
+                y = id // grid.size
+                if grid.isOpenedBomb(x, y):
+                    print('BOM! KALAH!')
+                    return
                 if not grid.grid[x][y].isOpened():
                     grid.openTile(x, y)
-        
+            
+        print(f'BOMBCOUNT:{clips_bomb_count}')
         # Calculate probability to each adjacent unopened tiles
         # Format map = {id: probability}
-        grid.printBoard()
+        # grid.printBoard()
         adjDict = {}
         for x, y in grid.openedValuedTiles:
             arr = grid.getSurroundings(x, y)
@@ -113,8 +118,8 @@ def main():
                 sqadj = sqadj[:len(sqadj)-1]
                 sqflag = len(flag)
                 sqstring = "(square (no " + str(sqid) + ") (value " + str(sqval) + ") (adjacent " + str(sqadj) + ") (nflags " + str(sqflag) + "))"
-                # print(sqstring)
-                f = env.assert_string(sqstring)
+                print(f'dis string {sqstring}')
+                env.assert_string(sqstring)
                 # f.assertit()
 
         for key in adjDict:
@@ -125,7 +130,17 @@ def main():
 
         for fact in env.facts():
             print(fact)
+        print("=========")
+        env.run()
+        fact_arr = []
+        for fact in env.facts():
+            s = str(fact)
+            if s[:2] == 'f-':
+                s = s.split('    ')[1]
+            print(s)
+            fact_arr.append(s)
         grid.printBoard()
+        env.reset()
 
 def init(size):
     ''' 

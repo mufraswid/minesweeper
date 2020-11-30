@@ -3,7 +3,7 @@ def isFactSquare(str):
     return str[1:7] == 'square'
 
 def isFactFlagged(str):
-    return str[:7] == 'flagged'
+    return str[1:8] == 'flagged'
 
 def getFlaggedCoord(str):
     '''
@@ -23,7 +23,7 @@ def getFlaggedCoord(str):
 
 def isFactOpened(str):
     # return true if fact is opened
-    return str[:6] == 'opened'
+    return str[1:7] == 'opened'
 
 def getOpenedCoord(str):
     '''

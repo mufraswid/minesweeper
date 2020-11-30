@@ -65,11 +65,19 @@
     (retract ?pr)
 )
 
-
 ; ambil kotak dengan probabilitas terendah
 (defrule getLowestProb
     ?todo1 <- (prob (p ?p1) (id ?id1))
     ?todo2 <- (prob (p ?p2 &: (< ?p1 ?p2)) (id ?id2))
 =>
     (retract ?todo2)
+)
+
+; open square with lowest prob
+(defrule openLowestProb
+    (declare (salience -2))
+    ?sq <- (prob (p ?p) (id ?id))
+=>
+    (assert (opened (no ?id)))
+    (retract ?sq)
 )
