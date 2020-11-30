@@ -46,6 +46,7 @@ def main():
     env.load('mines.clp')
     for rule in env.rules():
         rule.watch_firings = True
+        # rule.matches()
     clips_bomb_count = 0
     print("We begin")
 
