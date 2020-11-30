@@ -9,6 +9,8 @@ class Grid:
         '''
         self.size = size
         self.grid = [ [Tile(n + self.size * i) for n in range(size)] for i in range(size)]
+        # List of opened tiles, used for iterate through it to calculate adjacent square probability
+        self.openedValuedTiles = []
 
     def generateRandomBombs(self, count):
         '''
@@ -117,6 +119,8 @@ class Grid:
 
     def openTile(self, x, y):
         self.grid[x][y].open()
+        if self.grid[x][y].getLabel() > 0:
+            self.openedValuedTiles.append((x, y))
         self.openAdjacent(x, y)
 
     def openAdjacent(self, x, y):

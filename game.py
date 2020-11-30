@@ -58,15 +58,27 @@ def main():
                 env.build(f'retract {strfact}')
             elif isFactFlagged(strfact):
                 # Ensure the flag has never been checked before
-                x, y = getFlaggedCoord(strfact, grid)
+                x, y = getFlaggedCoord(strfact, grid.size)
                 if not grid.grid[x][y].isFlagged():
                     grid.grid[x][y].setFlag()
                     clips_bomb_count += 1
             elif isFactOpened(strfact):
-                x, y = getOpenedCoord(strfact, grid)
+                x, y = getOpenedCoord(strfact, grid.size)
                 if not grid.grid[x][y].isOpened():
                     grid.openTile(x, y)
-            break
+        
+        # Calculate probability to each adjacent unopened tiles
+        # Format map = {id: probability}
+        adjDict = {}
+        for x, y in grid.openedTiles:
+            arr = grid.getSurroundings(x, y)
+            # for every unopened adjacent squares, increment probability from every adjacent valued tile
+            for ax, ay in arr:
+                if not grid[x][y].isOpened() and not grid[x][y].isFlagged():
+                    id = ax + ay * grid.size
+                    key[id] = 1 if id in adjDict else key[id] += 1
+    
+
         break
 
             # Count every possibility of adjacent squares      
