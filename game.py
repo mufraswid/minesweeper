@@ -74,16 +74,24 @@ def main():
         adjDict = {}
         for x, y in grid.openedTiles:
             arr = grid.getSurroundings(x, y)
+            adj = set([])
             # for every unopened adjacent squares, increment probability from every adjacent valued tile
             for ax, ay in arr:
                 if not grid[x][y].isOpened() and not grid[x][y].isFlagged():
                     id = ax + ay * grid.size
-                    key[id] = 1 if id in adjDict else key[id] += 1
-    
+                    if id not in adjDict:
+                        adjDict[id] = 1 
+                    else:
+                        adjDict[id] += 1
+                    adj.add(id)
+            
+            # cek surroundingnya ada yang belom kebuka
+            # kalo belom, assert squarenya
 
+        for key, value in adjDict:
+            # assert to clips
+        
         break
-        # Count every possibility of adjacent squares      
-        # Push fact to clips using assert
         # env.run()
 
     print(clips_bomb_count)
