@@ -42,8 +42,8 @@ class Tile:
         '''
         return self.opened
 
-    def getLabel(self):
-        '''
-        Get value
-        '''
-        return self.label
+    # def getLabel(self):
+    #     '''
+    #     Get value
+    #     '''
+    #     return self.label
