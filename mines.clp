@@ -60,4 +60,5 @@
     ?todo2 <- (prob (p ?p2 &: (< ?p1 ?p2)) (id ?id2))
 =>
     (retract ?todo2)
+    (assert (opened (no ?id1)))
 )
