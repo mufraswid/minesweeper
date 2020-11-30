@@ -61,4 +61,5 @@
 =>
     (retract ?todo2)
     (assert (opened (no ?id1)))
+    (retract ?todo1)
 )
