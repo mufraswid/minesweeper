@@ -1,165 +1,84 @@
-from Tile import Tile
-from random import randint
+; Keterangan status kotak
+(deftemplate opened (slot no))
+(deftemplate flagged (slot no))
+(deftemplate prob (slot p) (slot id))
 
-class Grid:
-    def __init__(self, size, bombCount):
-        '''
-        Konstruktor
-        '''
-        self.size = size
-        self.grid = [ [Tile(n + self.size * i) for n in range(size)] for i in range(size)]
-        self.bombCount = bombCount
-        # List of opened tiles, used for iterate through it to calculate adjacent square probability
-        self.openedValuedTiles = []
+; Struct kotak minesweeper
+(deftemplate square 
+    ; no kotak
+    (slot no)
+    ; nilai kotak (banyaknya bom yang adjacent)
+    (slot value)
+    ; no kotak yang mengelilingi
+    (multislot adjacent)
+    ; banyaknya flag yang mengelilingi
+    (slot nflags)
+)
 
-    def generateRandomBombs(self, count):
-        '''
-        Generate random bombs on the field
-        '''
-        for n in range(count):
-            while (True):
-                x = randint(0, self.size-1)
-                y = randint(0, self.size-1)
-                if x > 0 and y > 0 and self.grid[x][y].bomb == False:
-                    self.grid[x][y].bomb = True
-                    break
+; Apabila banyak flag + unknown adjacent = value, maka flag kotak sisanya
+(defrule flagAllAdjacent
+    (declare (salience 2))
+	?cursquare <- (square
+		(value ?v &: (> ?v 0))
+		(nflags ?nf)
+		(adjacent $?a &: (eq (+ (length$ $?a) ?nf) ?v))
+    )
+=>
+    (foreach ?square $?a 
+        (assert (flagged (no ?square)))
+    )
+    (retract ?cursquare)
+    (halt)
+)
 
-    def inputBombs(self, count):
-        '''
-        Take input to set the bombs in the field
-        '''
-        for n in range(count):
-            while(True):
-                x, y =  map(int, input('Koordinat bomb %d: '%(n+1)).split(','))
-                if (x < 0) or (x >= self.size) or (y < 0) or (y >= self.size) or ((x == 0) and (y == 0)):
-                    print("Out of bounds!")
-                else:
-                    if self.grid[x][y].bomb == False and not((x == 0) and (y == 0)):
-                        self.grid[x][y].bomb = True
-                        break
-                    else:
-                        print("Koordinat sudah terisi bomb!")
+; Apabila banyak flag = value, maka buka kotak sisanya
+(defrule openAllAdjacent
+    (declare (salience 1))
+	?cursquare <- (square
+		(value ?v)
+		(nflags ?n &: (eq ?n ?v))
+		(adjacent $?a)
+    )
+=>
+    (foreach ?square $?a 
+        (assert (opened (no ?square)))
+    )
+    (retract $cursquare)
+    (halt)
+)
 
-    def inbounds(self, x, y):
-        '''
-        Check if x and y is within the field
-        '''
-        return (0 <= x and x < self.size and 0 <= y and y < self.size) 
+; Remove prob fact if square is flagged beforehand
+(defrule removeProbOnFlagged
+    (declare (salience 1))
+    ?pr <- (prob (p ?p) (id ?id))
+    (flagged (no ?n&:(eq ?n ?id)))
+=>
+    (retract ?pr)
+)
 
-    def getLabel(self, x, y):
-        '''
-        Get value of a Tile from its surroundings
-        '''
-        s = 0
-        for (dx, dy) in [(0,1), (0,-1), (1,0), (-1,0), (1,1), (-1,-1), (1,-1), (-1,1)]:
-            if self.inbounds(x+dx, y+dy) and self.grid[x+dx][y+dy].isBomb():
-                s += 1
-        return s
-    
-    def printBombs(self):
-        '''
-        Print bombs in the field
-        '''
-        for i in range(self.size):
-            print("=== ", end='')
-        print()
-        for i in range(self.size):
-            for j in range(self.size):
-                if(self.grid[j][i].isBomb()):
-                    print(" B  ", end = '')
-                else:
-                    print("[ ] ", end = '')
-            print()
-        for i in range(self.size):
-            print("=== ", end='')
-        print()
+; Remove prob fact if square is opened beforehand
+(defrule removeProbOnOpened
+    (declare (salience 1))
+    ?pr <- (prob (p ?p) (id ?id))
+    (opened (no ?n&:(eq ?n ?id)))
+=>
+    (retract ?pr)
+)
 
-    def printField(self):
-        '''
-        Print the board with all tiles opened
-        '''
-        for i in range(self.size):
-            print("=== ", end='')
-        print()
-        for y in range(self.size):
-            for x in range(self.size):
-                currTile = self.grid[x][y]
-                if (currTile.isBomb()):
-                    print(" B  ", end='')
-                else:
-                    print("[" + str(self.getLabel(x,y)) + "] ", end='')
-            print()
-        for i in range(self.size):
-            print("=== ", end='')
-        print()
+; ambil kotak dengan probabilitas terendah
+(defrule getLowestProb
+    ?todo1 <- (prob (p ?p1) (id ?id1))
+    ?todo2 <- (prob (p ?p2 &: (< ?p1 ?p2)) (id ?id2))
+=>
+    (retract ?todo2)
+)
 
-    def printBoard(self):
-        '''
-        Print the board as it is
-        '''
-        for i in range(self.size):
-            print("=== ", end='')
-        print()
-        for y in range(self.size):
-            for x in range(self.size):
-                currTile = self.grid[x][y]
-                if (currTile.isOpened()):
-                    if (currTile.isBomb()):
-                        print(" B  ", end='')
-                    else:
-                        print(" " + str(self.getLabel(x,y)) + "  ", end='')
-                elif (currTile.isFlagged()):
-                    print("[F] ", end = '')
-                else:
-                    print("[ ] ", end = '')
-            print()
-        for i in range(self.size):
-            print("=== ", end='')
-        print()
-
-    def openTile(self, x, y):
-        if (not(self.grid[x][y].isFlagged()) and not(self.grid[x][y].isOpened())):
-            self.grid[x][y].open()
-            self.openedValuedTiles.append((x, y))
-            if self.getLabel(x, y) == 0:
-                self.openAdjacent(x, y)
-    
-    def isOpenedBomb(self, x, y):
-        '''
-        Returns true if bomb is opened, expected to end game
-        '''
-        return (self.grid[x][y].isOpened()) and (self.grid[x][y].isBomb())
-
-    def openAdjacent(self, x, y):
-        '''
-        Open adjacent safe tiles, recursively
-        '''
-        surr = self.getSurroundings(x, y)
-        for ax, ay in surr:
-            if not(self.grid[ax][ay].isOpened()) and not(self.grid[ax][ay].isFlagged()):
-                self.openTile(ax, ay)
-
-    def flagTile(self, x, y):
-        if (not(self.grid[x][y].isFlagged()) and not(self.grid[x][y].isOpened())):
-            self.grid[x][y].setFlag()
-    
-    def getSurroundings(self, x, y):
-        '''
-        Get surrounding tiles' ids
-        '''
-        surr = []
-        for (dx, dy) in [(0,1), (0,-1), (1,0), (-1,0), (1,1), (-1,-1), (1,-1), (-1,1)]:
-            if self.inbounds(x+dx, y+dy):
-                surr.append((x + dx, y + dy))
-        return surr
-
-    def isWin(self):
-        count = 0
-        for y in range(self.size):
-            for x in range(self.size):
-                if (self.grid[x][y].isBomb() and self.grid[x][y].isFlagged()):
-                    count+=1
-        return (count == self.bombCount)
-            
-
-# def checkOpened()
+; open square with lowest prob
+(defrule openLowestProb
+    (declare (salience -2))
+    ?sq <- (prob (p ?p) (id ?id))
+=>
+    (assert (opened (no ?id)))
+    (retract ?sq)
+    (halt)
+)
