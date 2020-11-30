@@ -20,7 +20,7 @@ class Grid:
             while (True):
                 x = randint(0, self.size-1)
                 y = randint(0, self.size-1)
-                if x > 0 and y > 0 and self.grid[x][y].bomb == False:
+                if self.grid[x][y].bomb == False and not(x == 0 and (y==0 or y==1)) and not(x==1 and (y==0 or y==1)):
                     self.grid[x][y].bomb = True
                     break
 
@@ -160,6 +160,13 @@ class Grid:
                 if (self.grid[x][y].isBomb() and self.grid[x][y].isFlagged()):
                     count+=1
         return (count == self.bombCount)
+
+    def checkBombOpened(self):
+        for y in range(self.size):
+            for x in range(self.size):
+                if (self.isOpenedBomb(x,y)):
+                    return True
+        return False
             
 
 # def checkOpened()

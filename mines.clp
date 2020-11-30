@@ -80,4 +80,5 @@
 =>
     (assert (opened (no ?id)))
     (retract ?sq)
+    (halt)
 )
