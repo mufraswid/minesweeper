@@ -2,12 +2,13 @@ from Tile import Tile
 from random import randint
 
 class Grid:
-    def __init__(self, size):
+    def __init__(self, size, bombCount):
         '''
         Konstruktor
         '''
         self.size = size
         self.grid = [ [Tile(n + self.size * i) for n in range(size)] for i in range(size)]
+        self.bombCount = bombCount
         # List of opened tiles, used for iterate through it to calculate adjacent square probability
         self.openedValuedTiles = []
 
@@ -106,7 +107,7 @@ class Grid:
                     if (currTile.isBomb()):
                         print(" B  ", end='')
                     else:
-                        print(" " + self.getLabel(x,y) + "  ", end='')
+                        print(" " + str(self.getLabel(x,y)) + "  ", end='')
                 elif (currTile.isFlagged()):
                     print("[F] ", end = '')
                 else:
@@ -117,10 +118,17 @@ class Grid:
         print()
 
     def openTile(self, x, y):
-        self.grid[x][y].open()
-        if self.getLabel(x, y) > 0:
+        if (not(self.grid[x][y].isFlagged()) and not(self.grid[x][y].isOpened())):
+            self.grid[x][y].open()
             self.openedValuedTiles.append((x, y))
-            self.openAdjacent(x, y)
+            if self.getLabel(x, y) == 0:
+                self.openAdjacent(x, y)
+    
+    def isOpenedBomb(self, x, y):
+        '''
+        Returns true if bomb is opened, expected to end game
+        '''
+        return (self.grid[x][y].isOpened()) and (self.grid[x][y].isBomb())
 
     def openAdjacent(self, x, y):
         '''
@@ -128,9 +136,13 @@ class Grid:
         '''
         surr = self.getSurroundings(x, y)
         for ax, ay in surr:
-            if self.getLabel(ax,ay) == 0:
+            if not(self.grid[ax][ay].isOpened()) and not(self.grid[ax][ay].isFlagged()):
                 self.openTile(ax, ay)
 
+    def flagTile(self, x, y):
+        if (not(self.grid[x][y].isFlagged()) and not(self.grid[x][y].isOpened())):
+            self.grid[x][y].setFlag()
+    
     def getSurroundings(self, x, y):
         '''
         Get surrounding tiles' ids
@@ -140,3 +152,14 @@ class Grid:
             if self.inbounds(x+dx, y+dy):
                 surr.append((x + dx, y + dy))
         return surr
+
+    def isWin(self):
+        count = 0
+        for y in range(self.size):
+            for x in range(self.size):
+                if (self.grid[x][y].isBomb() and self.grid[x][y].isFlagged()):
+                    count+=1
+        return (count == self.bombCount)
+            
+
+# def checkOpened()

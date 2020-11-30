@@ -29,7 +29,7 @@ def main():
         else:
             print("Invalid amount!")
     
-    grid = Grid(size)
+    grid = Grid(size,bombCount)
 
     while (True):
         case = input("Apakah bomb diinput secara random? (y/n)")
@@ -49,7 +49,17 @@ def main():
     env.load('mines.clp')
     clips_bomb_count = 0
     print("We begin")
-    
+
+    # Init first move by opening tile(0,0)
+    # adj = set([])
+    # flag = set([])
+    # grid.openTile(0,0)
+    # sqid = 0
+    # sqval = grid.getLabel(0,0)
+    # sqadj = "".join(adj)
+    # sqflag = len(flag)
+    # sqstring = "(square (no " + str(sqid) + ") (value " + str(sqval) + ") (adjacent " + str(sqadj) + ") (nflags " + str(sqflag) + "))"
+    # f = env.assert_string(sqstring)
     
     
     while clips_bomb_count < bombCount:
@@ -58,21 +68,25 @@ def main():
             print(fact)
             strfact = str(fact)
             if isFactSquare(strfact):
+                print("Fact is square")
                 # Retract because the fact is outdated
                 fact.retract()
             elif isFactFlagged(strfact):
+                print("Fact is flagged")
                 # Ensure the flag has never been checked before
                 x, y = getFlaggedCoord(strfact, grid.size)
                 if not grid.grid[x][y].isFlagged():
                     grid.grid[x][y].setFlag()
                     clips_bomb_count += 1
             elif isFactOpened(strfact):
+                print("Fact is opened")
                 x, y = getOpenedCoord(strfact, grid.size)
                 if not grid.grid[x][y].isOpened():
                     grid.openTile(x, y)
         
         # Calculate probability to each adjacent unopened tiles
         # Format map = {id: probability}
+        grid.printBoard()
         adjDict = {}
         for x, y in grid.openedValuedTiles:
             arr = grid.getSurroundings(x, y)
@@ -94,7 +108,7 @@ def main():
             # kalo belom, assert squarenya
             if (len(adj) > 0):
                 sqid = x + y * grid.size
-                sqqval = grid.getLabel(x,y)
+                sqval = grid.getLabel(x,y)
                 sqadj = "".join(adj)
                 sqflag = len(flag)
                 sqstring = "(square (no " + str(sqid) + ") (value " + str(sqval) + ") (adjacent " + str(sqadj) + ") (nflags " + str(sqflag) + "))"
@@ -115,10 +129,23 @@ def init(size):
     ''' 
     Init game aspects
     '''
-    size = int(input("Masukkan ukuran papan (4 <= n <= 10): "))
-    bombCount = int(input("Masukkan jumlah bomb dalam papan: "))
-
-    grid = Grid(size)
+    size = 0
+    while(True):
+        size = int(input("Masukkan ukuran papan (4 <= n <= 10): "))
+        if (4 <= size and size <= 10):
+            break
+        else:
+            print("Invalid size!")
+    
+    bombCount = 0
+    while(True):
+        bombCount = int(input("Masukkan jumlah bomb dalam papan: "))
+        if (1 <= bombCount and bombCount <= (size*size-1)):
+            break
+        else:
+            print("Invalid amount!")
+    
+    grid = Grid(size,bombCount)
 
     while (True):
         case = input("Apakah bomb diinput secara random? (y/n)")
@@ -129,7 +156,62 @@ def init(size):
             grid.inputBombs(bombCount)
             break
     grid.print()
+
+def game():
+    '''
+    Testing game by playing
+    '''
+    size = 0
+    while(True):
+        size = int(input("Masukkan ukuran papan (4 <= n <= 10): "))
+        if (4 <= size and size <= 10):
+            break
+        else:
+            print("Invalid size!")
     
+    bombCount = 0
+    while(True):
+        bombCount = int(input("Masukkan jumlah bomb dalam papan: "))
+        if (1 <= bombCount and bombCount <= (size*size-1)):
+            break
+        else:
+            print("Invalid amount!")
+    
+    grid = Grid(size,bombCount)
+
+    while (True):
+        case = input("Apakah bomb diinput secara random? (y/n)")
+        if (case == "y"):
+            grid.generateRandomBombs(bombCount)
+            break
+        elif (case == "n"):
+            grid.inputBombs(bombCount)
+            break
+    grid.printBombs()
+    grid.printField()
+
+    win = True
+    while True:
+        grid.printBoard()
+        action = input("Action: ")
+        if (isFactOpened(action)):
+            id = getOpenedCoord(action)
+            grid.openTile(id%grid.size, id//grid.size)
+            if (grid.isOpenedBomb(id%grid.size, id//grid.size)):
+                win = False
+                break
+        elif(isFactFlagged(action)):
+            print("Action is flag")
+            id = getFlaggedCoord(action)
+            grid.flagTile(id%grid.size, id//grid.size)
+        if (grid.isWin()):
+            break
+    if (win):
+        print("You win!")
+    else:
+        print("You lose!")
+
 
 if __name__ == "__main__":
     main()
+    # game()
