@@ -9,4 +9,3 @@ game.init(size)
 root = tk.Tk()
 root.mainloop()
 canvas = tk.Canvas()
-

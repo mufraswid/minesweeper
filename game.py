@@ -44,6 +44,8 @@ def main():
     # init clps environment, load mines.clp
     env = Environment()
     env.load('mines.clp')
+    for rule in env.rules():
+        rule.watch_firings = True
     clips_bomb_count = 0
     print("We begin")
 
@@ -68,8 +70,8 @@ def main():
         print("Iterasi ke-"+str(iterasi))
         for fact in fact_arr:
             strfact = str(fact)
-            # print(f'read: {strfact}')
             if isFactFlagged(strfact):
+                print(f'read: {strfact}')
                 # Ensure the flag has never been checked before
                 id = getFlaggedCoord(strfact)
                 x = id % grid.size
@@ -79,6 +81,7 @@ def main():
                     grid.grid[x][y].setFlag()
                     clips_bomb_count += 1
             elif isFactOpened(strfact):
+                print(f'read: {strfact}')
                 id = getOpenedCoord(strfact)
                 x = id % grid.size
                 y = id // grid.size
