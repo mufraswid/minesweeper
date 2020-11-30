@@ -72,25 +72,36 @@ def main():
         # Calculate probability to each adjacent unopened tiles
         # Format map = {id: probability}
         adjDict = {}
-        for x, y in grid.openedTiles:
+        for x, y in grid.openedValuedTiles:
             arr = grid.getSurroundings(x, y)
             adj = set([])
+            flag = set([])
             # for every unopened adjacent squares, increment probability from every adjacent valued tile
             for ax, ay in arr:
-                if not grid[x][y].isOpened() and not grid[x][y].isFlagged():
-                    id = ax + ay * grid.size
+                id = ax + ay * grid.size
+                if not grid[ax][ay].isOpened() and not grid[ax][ay].isFlagged():
                     if id not in adjDict:
                         adjDict[id] = 1 
                     else:
                         adjDict[id] += 1
                     adj.add(id)
+                elif grid[ax][ay].isFlagged():
+                    flag.add(id)
             
             # cek surroundingnya ada yang belom kebuka
             # kalo belom, assert squarenya
+            if (len(adj) > 0):
+                sqid = x + y * grid.size
+                sqqval = grid.getLabel(x,y)
+                sqadj = "".join(adj)
+                sqflag = len(flag)
+                sqstring = "(square (no " + str(sqid) + ") (value " + str(sqval) + ") (adjacent " + str(sqadj) + ") (nflags " + str(sqflag) + "))"
+                env.assert_string(sqstring)
 
         for key, value in adjDict:
             # assert to clips
-        
+            probstring = "(prob (p " + str(value) + ") (id " + str(key) + "))"
+            env.assert_string(probstring)
         break
         # env.run()
 

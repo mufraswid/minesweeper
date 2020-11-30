@@ -7,10 +7,6 @@
 (deftemplate square 
     ; no kotak
     (slot no)
-    ; letak absis
-    (slot absis)
-    ; letak ordinat 
-    (slot ordinat)
     ; nilai kotak (banyaknya bom yang adjacent)
     (slot value)
     ; no kotak yang mengelilingi
@@ -24,8 +20,6 @@
     (opened (no 0))
     (square
         (no 0)
-        (absis 0)
-        (ordinat 0)
         (value 0)
         (adjacent 1 8 9 10 11)
         (nflags 1)
