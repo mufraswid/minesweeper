@@ -51,15 +51,15 @@ def main():
     print("We begin")
 
     # Init first move by opening tile(0,0)
-    # adj = set([])
-    # flag = set([])
-    # grid.openTile(0,0)
-    # sqid = 0
-    # sqval = grid.getLabel(0,0)
-    # sqadj = "".join(adj)
-    # sqflag = len(flag)
-    # sqstring = "(square (no " + str(sqid) + ") (value " + str(sqval) + ") (adjacent " + str(sqadj) + ") (nflags " + str(sqflag) + "))"
-    # f = env.assert_string(sqstring)
+    adj = set([])
+    flag = set([])
+    grid.openTile(0,0)
+    sqid = 0
+    sqval = grid.getLabel(0,0)
+    sqadj = "".join(adj)
+    sqflag = len(flag)
+    sqstring = "(square (no " + str(sqid) + ") (value " + str(sqval) + ") (adjacent " + str(sqadj) + ") (nflags " + str(sqflag) + "))"
+    f = env.assert_string(sqstring)
     
     
     while clips_bomb_count < bombCount:
@@ -68,18 +68,15 @@ def main():
             print(fact)
             strfact = str(fact)
             if isFactSquare(strfact):
-                print("Fact is square")
                 # Retract because the fact is outdated
                 fact.retract()
             elif isFactFlagged(strfact):
-                print("Fact is flagged")
                 # Ensure the flag has never been checked before
                 x, y = getFlaggedCoord(strfact, grid.size)
                 if not grid.grid[x][y].isFlagged():
                     grid.grid[x][y].setFlag()
                     clips_bomb_count += 1
             elif isFactOpened(strfact):
-                print("Fact is opened")
                 x, y = getOpenedCoord(strfact, grid.size)
                 if not grid.grid[x][y].isOpened():
                     grid.openTile(x, y)
@@ -101,7 +98,7 @@ def main():
                     else:
                         adjDict[id] += 1
                     adj.add(id)
-                elif grid[ax][ay].isFlagged():
+                elif grid.grid[ax][ay].isFlagged():
                     flag.add(id)
             
             # cek surroundingnya ada yang belom kebuka
@@ -109,21 +106,26 @@ def main():
             if (len(adj) > 0):
                 sqid = x + y * grid.size
                 sqval = grid.getLabel(x,y)
-                sqadj = "".join(adj)
+                sqadj = ""
+                for val in adj:
+                    sqadj += str(val)
+                    sqadj += " "
+                sqadj = sqadj[:len(sqadj)-1]
                 sqflag = len(flag)
                 sqstring = "(square (no " + str(sqid) + ") (value " + str(sqval) + ") (adjacent " + str(sqadj) + ") (nflags " + str(sqflag) + "))"
+                # print(sqstring)
                 f = env.assert_string(sqstring)
-                f.assertit()
+                # f.assertit()
 
-        for key, value in adjDict:
+        for key in adjDict:
             # assert to clips
-            probstring = "(prob (p " + str(value) + ") (id " + str(key) + "))"
+            probstring = "(prob (p " + str(adjDict[key]) + ") (id " + str(key) + "))"
             f = env.assert_string(probstring)
-            f.assertit()
+            # f.assertit()
 
         for fact in env.facts():
             print(fact)
-        break
+        grid.printBoard()
 
 def init(size):
     ''' 
