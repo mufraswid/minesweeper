@@ -1,4 +1,3 @@
-# Grid to model the field
 from Tile import Tile
 from random import randint
 

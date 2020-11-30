@@ -47,11 +47,13 @@ def main():
     # init clps environment, load mines.clp
     env = Environment()
     env.load('mines.clp')
-    
     clips_bomb_count = 0
+    print("We begin")
     
     while clips_bomb_count < bombCount:
+        print("Start!")
         for fact in env.facts():
+            print(fact)
             strfact = str(fact)
             if isFactSquare(strfact):
                 # Retract because the fact is outdated
@@ -80,10 +82,11 @@ def main():
     
 
         break
+        # Count every possibility of adjacent squares      
+        # Push fact to clips using assert
+        # env.run()
 
-            # Count every possibility of adjacent squares      
-            # Push fact to clips using assert
-            # env.run()
+    print(clips_bomb_count)
 
 def init(size):
     ''' 

@@ -9,28 +9,16 @@ def getFlaggedCoord(str):
     '''
     get flagged coord of surrounding, coord is id
     '''
-    raw = str[10:]
-    id = 0
-    # raw is (xx)
-    if (raw.length == 4):
-        id = int(raw[1:2])
-    # raw is (x)
-    else:
-        id = int(raw[1])
+    raw = str[13:].replace(")","")
+    id = int(raw)
     return id
 
 def getFlaggedCoord(str, size):
     '''
     get flagged coord of surrounding, coord is (x,y)
     '''
-    raw = str[10:]
-    id = 0
-    # raw is (xx)
-    if (raw.length > 2):
-        id = int(raw[1:2])
-    # raw is (x)
-    else:
-        id = int(raw[1])
+    raw = str[13:].replace(")","")
+    id = int(raw)
     return (id % size, id // size)
 
 def isFactOpened(str):
@@ -41,26 +29,23 @@ def getOpenedCoord(str):
     '''
     get opened coord of surrounding, coord is id
     '''
-    raw = str[9:]
-    id = 0
-    # raw is (xx)
-    if (raw.length > 2):
-        id = int(raw[1:2])
-    # raw is (x)
-    else:
-        id = int(raw[2])
+    raw = str[12:].replace(")","")
+    id = int(raw)
     return id
 
 def getOpenedCoord(str, size):
     '''
     get opened coord of surrounding, coord is (x,y)
     '''
-    raw = str[9:]
-    id = 0
-    # raw is (xx)
-    if (raw.length > 2):
-        id = int(raw[1:2])
-    # raw is (x)
-    else:
-        id = int(raw[2])
+    raw = str[12:].replace(")","")
+    id = int(raw)
     return (id % size, id // size)
+
+def main():
+    string = "(flagged (no 10))"
+    x, y = getFlaggedCoord(string, 5)
+    print(x)
+    print(y)
+
+if __name__ == "__main__":
+    main()
