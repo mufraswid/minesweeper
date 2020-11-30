@@ -118,9 +118,9 @@ class Grid:
 
     def openTile(self, x, y):
         self.grid[x][y].open()
-        if self.grid[x][y].getLabel() > 0:
+        if self.getLabel(x, y) > 0:
             self.openedValuedTiles.append((x, y))
-        self.openAdjacent(x, y)
+            self.openAdjacent(x, y)
 
     def openAdjacent(self, x, y):
         '''

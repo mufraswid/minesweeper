@@ -50,6 +50,8 @@ def main():
     clips_bomb_count = 0
     print("We begin")
     
+    
+    
     while clips_bomb_count < bombCount:
         print("Start!")
         for fact in env.facts():
@@ -57,7 +59,7 @@ def main():
             strfact = str(fact)
             if isFactSquare(strfact):
                 # Retract because the fact is outdated
-                env.build(f'retract {strfact}')
+                fact.retract()
             elif isFactFlagged(strfact):
                 # Ensure the flag has never been checked before
                 x, y = getFlaggedCoord(strfact, grid.size)
@@ -79,7 +81,7 @@ def main():
             # for every unopened adjacent squares, increment probability from every adjacent valued tile
             for ax, ay in arr:
                 id = ax + ay * grid.size
-                if not grid[ax][ay].isOpened() and not grid[ax][ay].isFlagged():
+                if not grid.grid[ax][ay].isOpened() and not grid.grid[ax][ay].isFlagged():
                     if id not in adjDict:
                         adjDict[id] = 1 
                     else:
@@ -96,16 +98,18 @@ def main():
                 sqadj = "".join(adj)
                 sqflag = len(flag)
                 sqstring = "(square (no " + str(sqid) + ") (value " + str(sqval) + ") (adjacent " + str(sqadj) + ") (nflags " + str(sqflag) + "))"
-                env.assert_string(sqstring)
+                f = env.assert_string(sqstring)
+                f.assertit()
 
         for key, value in adjDict:
             # assert to clips
             probstring = "(prob (p " + str(value) + ") (id " + str(key) + "))"
-            env.assert_string(probstring)
-        break
-        # env.run()
+            f = env.assert_string(probstring)
+            f.assertit()
 
-    print(clips_bomb_count)
+        for fact in env.facts():
+            print(fact)
+        break
 
 def init(size):
     ''' 
